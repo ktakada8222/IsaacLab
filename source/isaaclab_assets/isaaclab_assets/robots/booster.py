@@ -47,7 +47,7 @@ BOOSTER_K1_CFG = ArticulationCfg(
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.65),
+        pos=(-2.0, -2.0, 0.65),
         joint_pos={
             ".*_Hip_Pitch": -0.20,
             ".*_Knee_Pitch": 0.40,
