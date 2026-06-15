@@ -32,9 +32,9 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
         # grid is centered on the boiler room floor instead, with the robot starting
         # slightly above the floor.
         # NOTE: tune `num_envs` / `env_spacing` to match the boiler room's floor size.
-        self.scene.num_envs = 256
+        self.scene.num_envs = 64
         self.scene.env_spacing = 1.5
-        self.scene.robot.init_state.pos = (6.0, -19.706, 1.3)
+        self.scene.robot.init_state.pos = (3.0, -19.706, 1.3)
 
         # match the rigid-body physics material used during rough-terrain training
         self.sim.physics_material = self.scene.terrain.physics_material
