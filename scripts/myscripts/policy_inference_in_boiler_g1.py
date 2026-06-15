@@ -44,6 +44,7 @@ import torch
 
 import omni
 
+import isaaclab.sim as sim_utils
 from isaaclab.envs import ManagerBasedRLEnv
 from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
@@ -70,6 +71,13 @@ def main():
         prim_path="/World/ground",
         terrain_type="usd",
         usd_path=BOILER_USD_PATH,
+    )
+    # match the rigid-body physics material used during training (rough terrain default)
+    env_cfg.sim.physics_material = sim_utils.RigidBodyMaterialCfg(
+        friction_combine_mode="multiply",
+        restitution_combine_mode="multiply",
+        static_friction=1.0,
+        dynamic_friction=1.0,
     )
     env_cfg.sim.device = args_cli.device
     if args_cli.device == "cpu":
