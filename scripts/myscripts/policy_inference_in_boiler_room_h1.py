@@ -64,7 +64,7 @@ def main():
     # setup environment
     env_cfg = H1RoughEnvCfg_PLAY()
     env_cfg.scene.num_envs = 3
-    env_cfg.scene.robot.init_state.pos = (0.202, -19.706, 7.8)
+    env_cfg.scene.robot.init_state.pos = (0.202, -19.706, 0.85)
     env_cfg.curriculum = None
     env_cfg.scene.terrain = TerrainImporterCfg(
         prim_path="/World/ground",
