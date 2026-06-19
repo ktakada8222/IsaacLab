@@ -73,6 +73,7 @@ def main():
         terrain_type="usd",
         usd_path=BOILER_USD_PATH,
     )
+    env_cfg.scene.robot.init_state.pos = (3.0, -19.706, 1.15)
     # match the rigid-body physics material used during training (rough terrain default)
     env_cfg.sim.physics_material = sim_utils.RigidBodyMaterialCfg(
         friction_combine_mode="multiply",
