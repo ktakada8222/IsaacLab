@@ -95,7 +95,7 @@ class G1BoilerSoloEnvCfg(G1RoughEnvCfg):
         self.scene.boiler = AssetBaseCfg(
             prim_path="{ENV_REGEX_NS}/Boiler",
             spawn=sim_utils.UsdFileCfg(usd_path=BOILER_USD_PATH),
-            init_state=AssetBaseCfg.InitialStateCfg(rot=(0.70711, 0.70711, 0.0, 0.0)),
+            init_state=AssetBaseCfg.InitialStateCfg(rot=(0.70711, -0.70711, 0.0, 0.0)),
         )
 
         # --- Blind policy: the single-mesh height scanner cannot see per-env rooms,
