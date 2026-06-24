@@ -81,6 +81,7 @@ def main():
         static_friction=1.0,
         dynamic_friction=1.0,
     )
+    env_cfg.scene.robot.init_state.pos = (2.5, -17, 1.19)
     env_cfg.sim.device = args_cli.device
     if args_cli.device == "cpu":
         env_cfg.sim.use_fabric = False
