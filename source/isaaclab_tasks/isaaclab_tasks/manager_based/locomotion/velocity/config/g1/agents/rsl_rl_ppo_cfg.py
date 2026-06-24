@@ -50,9 +50,12 @@ class G1FlatPPORunnerCfg(G1RoughPPORunnerCfg):
 
 
 @configclass
-class G1BoilerPPORunnerCfg(G1RoughPPORunnerCfg):
+class G1BoilerPPORunnerCfg(G1FlatPPORunnerCfg):
     def __post_init__(self):
         super().__post_init__()
 
-        # separate log folder so boiler runs don't mix with g1_rough checkpoints
+        # BoilerSolo is a blind (no height-scan) env like the flat env, so it reuses the
+        # flat network architecture ([256, 128, 128]). This also lets a flat-trained
+        # policy be loaded directly here for inference.
+        # separate log folder so boiler runs don't mix with g1_flat checkpoints
         self.experiment_name = "g1_boiler"
