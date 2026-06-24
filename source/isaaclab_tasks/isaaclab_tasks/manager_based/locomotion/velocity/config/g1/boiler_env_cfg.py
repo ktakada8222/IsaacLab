@@ -7,6 +7,8 @@ import os
 
 import isaaclab.sim as sim_utils
 from isaaclab.assets import AssetBaseCfg
+from isaaclab.sensors import RayCasterCfg, patterns
+from isaaclab.sensors.ray_caster import MultiMeshRayCasterCfg
 from isaaclab.utils import configclass
 
 from .rough_env_cfg import G1RoughEnvCfg
@@ -43,6 +45,26 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
         self.scene.robot.init_state.pos = (0.0, 0.0, 0.85)
         # match the rigid-body physics material used during rough-terrain training
         self.sim.physics_material = self.scene.terrain.physics_material
+
+        # The boiler USD is made of MANY meshes (floor, walls, pipes, ...). The default
+        # single-mesh RayCaster only reads the FIRST mesh under /World/ground, so its rays
+        # miss the floor and return all-inf height scans. MultiMeshRayCaster collects every
+        # mesh under the target prim and merges them, so the scan hits the real floor.
+        self.scene.height_scanner = MultiMeshRayCasterCfg(
+            prim_path="{ENV_REGEX_NS}/Robot/torso_link",
+            offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 20.0)),
+            ray_alignment="yaw",
+            pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=[1.6, 1.0]),
+            mesh_prim_paths=[
+                MultiMeshRayCasterCfg.RaycastTargetCfg(
+                    prim_expr="/World/ground",
+                    merge_prim_meshes=True,
+                    track_mesh_transforms=False,  # the room is static
+                )
+            ],
+            debug_vis=False,
+            update_period=self.decimation * self.sim.dt,
+        )
 
         # Scatter spawns a little so the height-scan policy sees different parts of the
         # room (this replaces the need for separate room copies). Keep it modest so
