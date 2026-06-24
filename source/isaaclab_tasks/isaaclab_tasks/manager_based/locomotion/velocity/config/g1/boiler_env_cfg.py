@@ -104,7 +104,7 @@ class G1BoilerSoloEnvCfg(G1RoughEnvCfg):
         # IMPORTANT: env_spacing must exceed the boiler room's footprint (x/y extent) so
         # neighbouring room copies do not overlap. Measure the room bbox and tune this.
         self.scene.env_spacing = 40.0
-        self.scene.robot.init_state.pos = (0.0, 0.0, 1.19)
+        self.scene.robot.init_state.pos = (0.0, 0.0, 1.00)
 
         # physics material for the plane (matches rough-training friction)
         self.sim.physics_material = self.scene.terrain.physics_material
