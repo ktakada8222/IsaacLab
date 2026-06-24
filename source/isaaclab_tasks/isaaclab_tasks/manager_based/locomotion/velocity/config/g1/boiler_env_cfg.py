@@ -85,9 +85,17 @@ class G1BoilerSoloEnvCfg(G1RoughEnvCfg):
         # --- One boiler room per environment ---
         # prim_path under {ENV_REGEX_NS} => cloned once per env by InteractiveScene.
         # The room's collision meshes + baked-in physics material travel with the USD.
+        # The boiler USD has an authored root rotation (Y-up -> Z-up correction).
+        # AssetBaseCfg always writes init_state.rot onto the prim, which would overwrite
+        # that authored rotation with identity and lay the room on its side. So we
+        # re-apply the correction explicitly here.
+        #   +90 deg about X: rot=( 0.70711,  0.70711, 0.0, 0.0)
+        #   -90 deg about X: rot=( 0.70711, -0.70711, 0.0, 0.0)  <- flip the sign if it tips the wrong way
+        # If the USD root also has a non-zero translate, set `pos=(Tx, Ty, Tz)` to match.
         self.scene.boiler = AssetBaseCfg(
             prim_path="{ENV_REGEX_NS}/Boiler",
             spawn=sim_utils.UsdFileCfg(usd_path=BOILER_USD_PATH),
+            init_state=AssetBaseCfg.InitialStateCfg(rot=(0.70711, 0.70711, 0.0, 0.0)),
         )
 
         # --- Blind policy: the single-mesh height scanner cannot see per-env rooms,
