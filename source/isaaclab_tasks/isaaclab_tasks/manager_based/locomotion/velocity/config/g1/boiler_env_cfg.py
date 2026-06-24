@@ -40,6 +40,16 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
         # match the rigid-body physics material used during rough-terrain training
         self.sim.physics_material = self.scene.terrain.physics_material
 
+        # Scatter spawns a little so the height-scan policy sees different parts of the
+        # room (this replaces the need for separate room copies). Keep it modest so
+        # robots stay on the floor and don't spawn inside walls -- widen toward the
+        # room's usable floor extent if needed.
+        self.events.reset_base.params["pose_range"] = {
+            "x": (-4.0, 4.0),
+            "y": (-2.0, 2.0),
+            "yaw": (-3.14, 3.14),
+        }
+
 
 @configclass
 class G1BoilerEnvCfg_PLAY(G1BoilerEnvCfg):

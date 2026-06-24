@@ -59,3 +59,14 @@ class G1BoilerPPORunnerCfg(G1FlatPPORunnerCfg):
         # policy be loaded directly here for inference.
         # separate log folder so boiler runs don't mix with g1_flat checkpoints
         self.experiment_name = "g1_boiler"
+
+
+@configclass
+class G1BoilerVisionPPORunnerCfg(G1RoughPPORunnerCfg):
+    def __post_init__(self):
+        super().__post_init__()
+
+        # Height-scan policy trained in the shared boiler room: keep the rough network
+        # architecture ([512, 256, 128]) since the observation includes height_scan,
+        # but log to its own folder so it doesn't mix with real g1_rough runs.
+        self.experiment_name = "g1_boiler_vision"
