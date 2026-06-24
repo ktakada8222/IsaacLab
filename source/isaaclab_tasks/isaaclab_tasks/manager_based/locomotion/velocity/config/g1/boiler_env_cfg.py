@@ -13,7 +13,7 @@ from .rough_env_cfg import G1RoughEnvCfg
 
 _ROBOT_ASSETS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../../../..", "robot_assets"))
 
-BOILER_USD_PATH = os.path.join(_ROBOT_ASSETS_DIR, "tron_showroom/environments/boiler.usd")
+BOILER_USD_PATH = os.path.join(_ROBOT_ASSETS_DIR, "tron_showroom/environments/boiler_pose_fixed.usd")
 
 
 @configclass
@@ -36,7 +36,7 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
         # NOTE: tune `num_envs` / `env_spacing` to match the boiler room's floor size.
         self.scene.num_envs = 64
         self.scene.env_spacing = 1.5
-        self.scene.robot.init_state.pos = (2.5, -17, 1.19)
+        self.scene.robot.init_state.pos = (0.0, 0.0, 1.19)
         # match the rigid-body physics material used during rough-terrain training
         self.sim.physics_material = self.scene.terrain.physics_material
 
@@ -85,17 +85,12 @@ class G1BoilerSoloEnvCfg(G1RoughEnvCfg):
         # --- One boiler room per environment ---
         # prim_path under {ENV_REGEX_NS} => cloned once per env by InteractiveScene.
         # The room's collision meshes + baked-in physics material travel with the USD.
-        # The boiler USD has an authored root rotation (Y-up -> Z-up correction).
-        # AssetBaseCfg always writes init_state.rot onto the prim, which would overwrite
-        # that authored rotation with identity and lay the room on its side. So we
-        # re-apply the correction explicitly here.
-        #   +90 deg about X: rot=( 0.70711,  0.70711, 0.0, 0.0)
-        #   -90 deg about X: rot=( 0.70711, -0.70711, 0.0, 0.0)  <- flip the sign if it tips the wrong way
-        # If the USD root also has a non-zero translate, set `pos=(Tx, Ty, Tz)` to match.
+        # boiler_pose_fixed.usd is authored upright/Z-up with an identity default prim,
+        # so referencing it with the default identity init_state already places it
+        # correctly (the orientation correction lives on a child Xform inside the USD).
         self.scene.boiler = AssetBaseCfg(
             prim_path="{ENV_REGEX_NS}/Boiler",
             spawn=sim_utils.UsdFileCfg(usd_path=BOILER_USD_PATH),
-            init_state=AssetBaseCfg.InitialStateCfg(rot=(0.70711, -0.70711, 0.0, 0.0)),
         )
 
         # --- Blind policy: the single-mesh height scanner cannot see per-env rooms,
@@ -109,7 +104,7 @@ class G1BoilerSoloEnvCfg(G1RoughEnvCfg):
         # IMPORTANT: env_spacing must exceed the boiler room's footprint (x/y extent) so
         # neighbouring room copies do not overlap. Measure the room bbox and tune this.
         self.scene.env_spacing = 40.0
-        self.scene.robot.init_state.pos = (2.5, -17.0, 1.19)
+        self.scene.robot.init_state.pos = (0.0, 0.0, 1.19)
 
         # physics material for the plane (matches rough-training friction)
         self.sim.physics_material = self.scene.terrain.physics_material
