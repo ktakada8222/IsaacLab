@@ -34,8 +34,12 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
         # grid is centered on the boiler room floor instead, with the robot starting
         # slightly above the floor.
         # NOTE: tune `num_envs` / `env_spacing` to match the boiler room's floor size.
-        self.scene.num_envs = 64
-        self.scene.env_spacing = 1.5
+        # Many parallel robots are required for PPO to learn a gait (flat training uses
+        # 4096). They share one room but never collide across envs (collision filtering),
+        # so pack them densely: a small env_spacing keeps the grid on the room floor.
+        # ~sqrt(num_envs) * env_spacing is the grid footprint -> keep it within the floor.
+        self.scene.num_envs = 2048
+        self.scene.env_spacing = 0.4
         self.scene.robot.init_state.pos = (0.0, 0.0, 0.85)
         # match the rigid-body physics material used during rough-terrain training
         self.sim.physics_material = self.scene.terrain.physics_material
@@ -140,3 +144,28 @@ class G1BoilerSoloEnvCfg_PLAY(G1BoilerSoloEnvCfg):
         self.observations.policy.enable_corruption = False
         self.events.base_external_force_torque = None
         self.events.push_robot = None
+
+
+@configclass
+class G1BoilerSoloEnvCfg_TELEOP(G1BoilerSoloEnvCfg_PLAY):
+    """Single-robot blind boiler env driven by an external velocity command (ROS teleop).
+
+    The base_velocity command buffer (`vel_command_b`) is overwritten every step from a
+    ROS `/cmd_vel` topic, so the built-in random command generator must be disabled.
+    """
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        # one robot for teleoperation
+        self.scene.num_envs = 1
+        # effectively no episode time-out (only resets on a fall)
+        self.episode_length_s = 1.0e9
+
+        # direct yaw-rate control: with heading_command=True the angular command would be
+        # recomputed from a heading target and ignore the operator's turn input.
+        self.commands.base_velocity.heading_command = False
+        self.commands.base_velocity.rel_heading_envs = 0.0
+        self.commands.base_velocity.rel_standing_envs = 0.0
+        # never auto-resample: the operator drives the command from ROS every step.
+        self.commands.base_velocity.resampling_time_range = (1.0e9, 1.0e9)
