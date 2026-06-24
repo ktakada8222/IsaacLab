@@ -35,9 +35,40 @@ simulation_app = app_launcher.app
 
 import gymnasium as gym
 import torch
+from pxr import Usd
 
+import isaaclab.sim as sim_utils
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils import parse_env_cfg
+
+
+def dump_meshes(root_path: str):
+    """Report mesh prims under `root_path`, with and without descending into instances."""
+    stage = sim_utils.get_current_stage()
+    root = stage.GetPrimAtPath(root_path)
+    if not root.IsValid():
+        print(f"[dump] root prim '{root_path}' is INVALID (wrong path).")
+        return
+
+    def count_meshes(traverse_instances: bool):
+        if traverse_instances:
+            rng = Usd.PrimRange(root, Usd.TraverseInstanceProxies())
+        else:
+            rng = Usd.PrimRange(root)
+        paths = [str(p.GetPath()) for p in rng if p.GetTypeName() == "Mesh"]
+        return paths
+
+    normal = count_meshes(False)
+    with_instances = count_meshes(True)
+    print(f"[dump] Mesh prims under '{root_path}':")
+    print(f"       normal traversal          : {len(normal)}")
+    print(f"       with instance proxies      : {len(with_instances)}")
+    instanceable = [str(p.GetPath()) for p in Usd.PrimRange(root) if p.IsInstanceable() or p.IsInstance()]
+    print(f"       instanceable/instance prims: {len(instanceable)}")
+    for p in instanceable[:5]:
+        print(f"         - {p}")
+    for p in with_instances[:5]:
+        print(f"       example mesh: {p}")
 
 
 def stats(name: str, t: torch.Tensor):
@@ -58,6 +89,9 @@ def stats(name: str, t: torch.Tensor):
 def main():
     env_cfg = parse_env_cfg(args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs)
     env = gym.make(args_cli.task, cfg=env_cfg)
+
+    # report the mesh structure the ray-caster has to work with
+    dump_meshes("/World/ground")
 
     scene = env.unwrapped.scene
     if "height_scanner" not in scene.sensors:
