@@ -57,12 +57,9 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
             pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=[1.6, 1.0]),
             mesh_prim_paths=[
                 MultiMeshRayCasterCfg.RaycastTargetCfg(
-                    # point at the Xform that actually carries the room's correction
-                    # transform (all 190 cell meshes live under it) so that, with
-                    # track_mesh_transforms=True, the raycaster applies that transform.
-                    prim_expr="/World/ground/terrain/Extracted_object_Clone__0",
+                    prim_expr="/World/ground",
                     merge_prim_meshes=True,
-                    track_mesh_transforms=True,  # capture the parent correction transform
+                    track_mesh_transforms=False,  # the room is static
                 )
             ],
             debug_vis=False,
