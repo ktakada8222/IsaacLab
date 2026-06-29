@@ -52,7 +52,10 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
         # mesh under the target prim and merges them, so the scan hits the real floor.
         self.scene.height_scanner = MultiMeshRayCasterCfg(
             prim_path="{ENV_REGEX_NS}/Robot/torso_link",
-            offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 20.0)),
+            # Small offset: the default 20 m would start the rays ABOVE the room's ceiling,
+            # so the downward rays hit the ceiling instead of the floor. Start the rays just
+            # above the torso (below the ceiling) so they reach the floor below the robot.
+            offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 1.0)),
             ray_alignment="yaw",
             pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=[1.6, 1.0]),
             mesh_prim_paths=[
