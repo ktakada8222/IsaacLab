@@ -59,7 +59,7 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
                 MultiMeshRayCasterCfg.RaycastTargetCfg(
                     prim_expr="/World/ground",
                     merge_prim_meshes=True,
-                    track_mesh_transforms=False,  # the room is static
+                    track_mesh_transforms=True,  # capture the parent correction transform
                 )
             ],
             debug_vis=False,
