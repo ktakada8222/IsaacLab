@@ -15,7 +15,7 @@ from .rough_env_cfg import G1RoughEnvCfg
 
 _ROBOT_ASSETS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../../../..", "robot_assets"))
 
-BOILER_USD_PATH = os.path.join(_ROBOT_ASSETS_DIR, "tron_showroom/environments/boiler_pose_fixed.usd")
+BOILER_USD_PATH = os.path.join(_ROBOT_ASSETS_DIR, "tron_showroom/environments/boiler_std.usd")
 
 
 @configclass
