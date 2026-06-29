@@ -42,7 +42,7 @@ class G1BoilerEnvCfg(G1RoughEnvCfg):
         # ~sqrt(num_envs) * env_spacing is the grid footprint -> keep it within the floor.
         self.scene.num_envs = 2048
         self.scene.env_spacing = 0.4
-        self.scene.robot.init_state.pos = (0.0, 0.0, 0.85)
+        self.scene.robot.init_state.pos = (0.0, 0.0, 1.33)
         # match the rigid-body physics material used during rough-terrain training
         self.sim.physics_material = self.scene.terrain.physics_material
 

@@ -86,6 +86,28 @@ def stats(name: str, t: torch.Tensor):
     )
 
 
+def dump_registered_meshes(sensor):
+    """Print the ray-cast meshes the sensor actually registered (rules out 'only 1 mesh used')."""
+    print(f"[scanner] class = {type(sensor).__name__}")
+    mesh_dict = getattr(type(sensor), "meshes", None)
+    if not mesh_dict:
+        print("[scanner] no registered warp meshes (cls.meshes empty) -> raycast target missing!")
+        return
+    print(f"[scanner] registered warp meshes: {len(mesh_dict)}")
+    for path, wp_mesh in mesh_dict.items():
+        try:
+            pts = wp_mesh.points.numpy()
+            n_faces = wp_mesh.indices.numpy().reshape(-1, 3).shape[0]
+            mn = pts.min(axis=0)
+            mx = pts.max(axis=0)
+            print(
+                f"  - '{path}': {pts.shape[0]} verts, {n_faces} faces | "
+                f"bbox x[{mn[0]:.2f},{mx[0]:.2f}] y[{mn[1]:.2f},{mx[1]:.2f}] z[{mn[2]:.2f},{mx[2]:.2f}]"
+            )
+        except Exception as e:  # noqa: BLE001
+            print(f"  - '{path}': could not read warp mesh ({e})")
+
+
 def main():
     env_cfg = parse_env_cfg(args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs)
     env = gym.make(args_cli.task, cfg=env_cfg)
@@ -94,6 +116,8 @@ def main():
     dump_meshes("/World/ground")
 
     scene = env.unwrapped.scene
+    if "height_scanner" in scene.sensors:
+        dump_registered_meshes(scene.sensors["height_scanner"])
     if "height_scanner" not in scene.sensors:
         print("[ERROR] This task has no 'height_scanner' sensor. Use a task that keeps height_scan.")
         env.close()
